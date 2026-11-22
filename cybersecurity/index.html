@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Don't Be an Easy Target · Cyber Safety</title>
+<meta name="description" content="Spot scams and protect your card. Tips, diagrams and vocabulary (English B1).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0E0E12;--ink2:#1A1A22;--red:#FF4D3D;--yellow:#FFD23F;--paper:#F3EFE6;--mute:#A3A3AE;--line:#2E2E3A}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Inter",system-ui,Arial,sans-serif;background:var(--ink);color:#F3EFE6;line-height:1.5;-webkit-text-size-adjust:100%}
+  .wrap{max-width:680px;margin:0 auto;padding:0 18px 60px}
+  header{padding:26px 0 8px;text-align:center}
+  .kick{font-family:"Space Grotesk";font-weight:700;letter-spacing:2px;font-size:11px;color:var(--yellow);text-transform:uppercase}
+  h1{font-family:"Space Grotesk";font-weight:700;font-size:30px;line-height:1.02;letter-spacing:-.5px;margin:7px 0 10px}
+  h1 .u{color:var(--red)}
+  .cta{display:block;text-align:center;margin-top:4px;background:var(--red);color:#fff;text-decoration:none;font-family:"Space Grotesk";font-weight:700;
+       font-size:15px;padding:12px 22px;border-radius:11px}
+  /* nav */
+  nav{position:sticky;top:0;z-index:10;background:rgba(14,14,18,.95);backdrop-filter:blur(6px);
+      display:flex;gap:7px;overflow-x:auto;padding:12px 2px;margin:10px 0 6px;-webkit-overflow-scrolling:touch}
+  nav button{flex:0 0 auto;font-family:"Space Grotesk";font-weight:700;font-size:13px;color:var(--mute);
+             background:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;white-space:nowrap;transition:.15s}
+  nav button.active{color:#111;background:var(--yellow);border-color:var(--yellow)}
+  /* sections */
+  section{display:none;animation:fade .25s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .lead{color:var(--mute);font-size:15px;margin-bottom:18px}
+  h2{font-family:"Space Grotesk";font-weight:700;font-size:21px;margin:6px 0 4px}
+  .cards{display:flex;flex-direction:column;gap:16px;margin-top:14px}
+  .card{background:var(--ink2);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .illus{background:var(--paper);padding:10px}
+  .illus svg{width:100%;height:150px;display:block}
+  .card .body{padding:13px 15px}
+  .card h3{font-family:"Space Grotesk";font-weight:700;font-size:16px;color:#fff;margin-bottom:4px}
+  .card h3 .t{font-size:11px;color:var(--red);letter-spacing:1px}
+  .card p{font-size:14.5px;color:#E7E3DA}
+  .card b{font-family:"Space Grotesk";color:var(--yellow);font-weight:700}
+  .scheme{background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px}
+  .scheme svg{width:100%;height:auto;display:block}
+  .rules{display:flex;flex-direction:column;gap:10px;counter-reset:r;margin-top:14px}
+  .rule{display:flex;gap:13px;align-items:flex-start;background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  .rule::before{counter-increment:r;content:counter(r);font-family:"Space Grotesk";font-weight:700;font-size:16px;color:var(--yellow);
+                border:2px solid var(--yellow);border-radius:50%;width:30px;height:30px;min-width:30px;display:flex;align-items:center;justify-content:center}
+  .rule p{font-size:14.5px}.rule b{font-family:"Space Grotesk";color:#fff}
+  .vocab{display:grid;grid-template-columns:1fr;gap:0;margin-top:8px}
+  .v{padding:11px 2px;border-bottom:1px solid var(--line);font-size:14.5px}
+  .v b{font-family:"Space Grotesk";color:var(--yellow);font-weight:700}
+  .foot{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);color:var(--mute);font-size:14px;text-align:center}
+  .foot b{font-family:"Space Grotesk";color:var(--yellow);font-weight:700}
+  .social{margin-top:10px;display:flex;gap:16px;justify-content:center}
+  .social a{font-family:"Space Grotesk";font-weight:700;font-size:13px;color:var(--yellow);text-decoration:none;border:1px solid var(--line);padding:6px 14px;border-radius:999px}
+  .big{display:flex;flex-direction:column;gap:11px;margin-top:18px}
+  .jump{display:flex;align-items:center;gap:12px;background:var(--ink2);border:1px solid var(--line);border-left:4px solid var(--red);
+        border-radius:12px;padding:15px;cursor:pointer;color:#F3EFE6;text-align:left;font:inherit;width:100%}
+  .jump .em{font-size:22px}.jump b{font-family:"Space Grotesk";font-size:15px;color:#fff}
+  .jump span{display:block;color:var(--mute);font-size:13px}
+  @media(min-width:520px){.vocab{grid-template-columns:1fr 1fr;gap:0 26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kick">Cybersecurity · English B1</div>
+  <h1>DON'T BE AN <span class="u">EASY TARGET.</span></h1>
+</header>
+
+<nav>
+  <button data-t="home" class="active">Start</button>
+  <button data-t="threats">The traps</button>
+  <button data-t="data">Your data</button>
+  <button data-t="safe">Stay safe</button>
+  <button data-t="vocab">Vocabulary</button>
+</nav>
+
+<section id="home" class="active">
+  <p class="lead">They don't hack you — they trick you. Tap a section to explore.</p>
+  <div class="big">
+    <button class="jump" data-go="threats"><span class="em">🎯</span><span><b>The traps to know</b><span>Fake QR codes, payment pages, card theft, NFC.</span></span></button>
+    <button class="jump" data-go="data"><span class="em">🔎</span><span><b>How they get your info</b><span>Photo metadata and cookies.</span></span></button>
+    <button class="jump" data-go="safe"><span class="em">🛡️</span><span><b>Stay safe · 5 rules</b><span>Simple habits that protect you.</span></span></button>
+    <button class="jump" data-go="vocab"><span class="em">📖</span><span><b>Know the words</b><span>Key cybersecurity vocabulary (B1).</span></span></button>
+    <a class="cta" href="https://youtu.be/Y-WYOlcrDKE">▶ Watch the video on YouTube</a>
+  </div>
+</section>
+
+<section id="threats">
+  <h2>The traps to know</h2>
+  <p class="lead">Four everyday tricks — and what to notice.</p>
+  <div class="cards">
+    <div class="card"><div class="illus"><svg viewBox="0 0 200 150" aria-label="parking meter with a fake QR sticker">
+      <rect x="66" y="8" width="68" height="134" rx="12" fill="#fff" stroke="#111" stroke-width="4"/>
+      <rect x="78" y="20" width="44" height="22" rx="3" fill="#111"/>
+      <text x="100" y="35" fill="#fff" font-size="9" text-anchor="middle" font-family="Space Grotesk" font-weight="700">PAY HERE</text>
+      <g transform="translate(100 95) rotate(-8)">
+        <rect x="-33" y="-33" width="66" height="66" fill="#fff" stroke="#111" stroke-width="3"/>
+        <g transform="translate(-33.0 -33.0)"><rect x="0.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="6.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="30.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="6.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="6.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="30.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="30.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="6.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="30.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="30.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="42.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="54.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="0.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="6.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="6.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="42.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="12.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="42.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="18.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="42.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="30.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="30.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="30.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="42.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="54.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="6.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="30.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="24.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="30.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="30.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="36.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="42.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="42.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="42.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="42.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="42.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="48.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="48.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="48.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="48.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="48.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="54.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="54.0" width="6.0" height="6.0" fill="#111"/><rect x="0.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="6.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="12.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="18.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="24.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="30.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="36.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="48.0" width="6.0" height="6.0" fill="#111"/><rect x="54.0" y="48.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="54.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="54.0" width="6.0" height="6.0" fill="#111"/><rect x="48.0" y="60.0" width="6.0" height="6.0" fill="#111"/><rect x="60.0" y="60.0" width="6.0" height="6.0" fill="#111"/></g>
+        <path d="M19 31 L39 23 L31 41 Z" fill="#FF4D3D" stroke="#111" stroke-width="2"/>
+      </g>
+    </svg></div><div class="body">
+      <h3>Quishing <span class="t">· QR + PHISHING</span></h3>
+      <p>A scammer sticks a <b>fake QR code</b> on a parking meter. You scan it and land on a <b>fake payment page</b> that steals your money and data.</p></div></div>
+    <div class="card"><div class="illus"><svg viewBox="0 0 200 150" aria-label="ATM with a skimmer and hidden camera">
+      <rect x="40" y="6" width="120" height="138" rx="10" fill="#fff" stroke="#111" stroke-width="4"/>
+      <rect x="54" y="18" width="92" height="40" rx="3" fill="#111"/>
+      <rect x="60" y="70" width="80" height="16" rx="2" fill="#FFE0DB" stroke="#FF4D3D" stroke-width="3"/>
+      <line x1="63" y1="70" x2="63" y2="86" stroke="#111"/><line x1="70" y1="70" x2="70" y2="86" stroke="#111"/><line x1="77" y1="70" x2="77" y2="86" stroke="#111"/>
+      <text x="100" y="66" font-size="7.5" text-anchor="middle" fill="#FF4D3D" font-family="Inter" font-weight="700">fake reader</text>
+      <circle cx="132" cy="98" r="3.6" fill="#FF4D3D"/>
+      <line x1="132" y1="98" x2="150" y2="94" stroke="#FF4D3D" stroke-width="1.4"/><text x="152" y="96" font-size="7" fill="#FF4D3D" font-weight="700">camera</text>
+      <g fill="none" stroke="#111" stroke-width="2.4">
+        <circle cx="66" cy="100" r="3.6"/><circle cx="80" cy="100" r="3.6"/><circle cx="94" cy="100" r="3.6"/>
+        <circle cx="66" cy="114" r="3.6"/><circle cx="80" cy="114" r="3.6"/><circle cx="94" cy="114" r="3.6"/>
+      </g>
+      <path d="M58 132 q4 -22 26 -22 q22 0 24 18" fill="#fff" stroke="#111" stroke-width="3.2"/>
+    </svg></div><div class="body">
+      <h3>Card skimming <span class="t">· ATMs &amp; TERMINALS</span></h3>
+      <p>A thin <b>skimmer</b> on the card slot copies your card, while a <b>hidden camera</b> films your PIN.</p></div></div>
+    <div class="card"><div class="illus"><svg viewBox="0 0 200 150" aria-label="a phone reading a contactless card">
+      <rect x="112" y="24" width="52" height="100" rx="9" fill="#fff" stroke="#111" stroke-width="4"/>
+      <rect x="30" y="58" width="56" height="36" rx="5" fill="#fff" stroke="#111" stroke-width="4"/>
+      <rect x="40" y="70" width="16" height="11" rx="2" fill="#111"/>
+      <g fill="none" stroke="#F4A100" stroke-width="3.6">
+        <path d="M96 56 a24 24 0 0 1 0 40"/><path d="M104 48 a36 36 0 0 1 0 56"/>
+      </g>
+      <text x="138" y="78" font-size="10" text-anchor="middle" fill="#111" font-family="Space Grotesk" font-weight="700">NFC</text>
+    </svg></div><div class="body">
+      <h3>Contactless theft <span class="t">· NFC</span></h3>
+      <p>A <b>portable NFC reader</b> — even a phone — can read a contactless card from very close range.</p></div></div>
+    <div class="card"><div class="body">
+      <h3>Fake payment pages <span class="t">· PRESSURE</span></h3>
+      <p>The page looks real and pushes you: a <b>"25% discount"</b>, a countdown, a selfie "to verify". Too many requests? Close it.</p></div></div>
+  </div>
+</section>
+
+<section id="data">
+  <h2>How they get so much info</h2>
+  <p class="lead">One scan can reveal more than you think.</p>
+  <div class="scheme">
+    <svg viewBox="0 0 320 170" aria-label="metadata extracted from a photo">
+      <rect x="14" y="40" width="96" height="90" rx="6" fill="#F3EFE6" stroke="#FFD23F" stroke-width="2"/>
+      <circle cx="62" cy="74" r="12" fill="none" stroke="#111" stroke-width="3"/><circle cx="62" cy="74" r="5" fill="#111"/>
+      <path d="M26 118 l20 -22 14 12 18 -20 24 30z" fill="#111"/>
+      <text x="62" y="150" fill="#A3A3AE" font-family="Inter" font-size="11" text-anchor="middle">your photo</text>
+      <g stroke="#FF4D3D" stroke-width="2"><path d="M114 62 h40"/><path d="M114 85 h40"/><path d="M114 108 h40"/></g>
+      <g font-family="Space Grotesk" font-weight="700" font-size="12" fill="#F3EFE6">
+        <rect x="158" y="52" width="150" height="20" rx="5" fill="#1A1A22" stroke="#2E2E3A"/><text x="166" y="66">📱 Phone model</text>
+        <rect x="158" y="75" width="150" height="20" rx="5" fill="#1A1A22" stroke="#2E2E3A"/><text x="166" y="89">📅 Date &amp; time</text>
+        <rect x="158" y="98" width="150" height="20" rx="5" fill="#1A1A22" stroke="#2E2E3A"/><text x="166" y="112">📍 GPS location</text>
+      </g>
+    </svg>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="body"><h3>Metadata</h3>
+      <p>Every photo hides data: the <b>phone model</b>, the <b>date</b>, and often the exact <b>GPS location</b> where you took it.</p></div></div>
+  </div>
+  <div class="scheme">
+    <svg viewBox="0 0 320 150" aria-label="a website reading cookies and data">
+      <rect x="18" y="20" width="284" height="112" rx="8" fill="#1A1A22" stroke="#2E2E3A" stroke-width="2"/>
+      <rect x="18" y="20" width="284" height="22" rx="8" fill="#0E0E12"/>
+      <circle cx="32" cy="31" r="3.5" fill="#FF4D3D"/><circle cx="44" cy="31" r="3.5" fill="#FFD23F"/><circle cx="56" cy="31" r="3.5" fill="#4ad66d"/>
+      <circle cx="70" cy="86" r="22" fill="#FFD23F"/>
+      <g fill="#111"><circle cx="63" cy="80" r="3"/><circle cx="78" cy="82" r="2.5"/><circle cx="70" cy="92" r="3"/><circle cx="60" cy="90" r="2"/></g>
+      <text x="70" y="124" fill="#A3A3AE" font-family="Inter" font-size="11" text-anchor="middle">cookie</text>
+      <g font-family="Space Grotesk" font-weight="700" font-size="12" fill="#F3EFE6">
+        <text x="110" y="62">• location</text><text x="210" y="62">• time</text>
+        <text x="110" y="86">• browser</text><text x="210" y="86">• language</text>
+        <text x="110" y="110">• visits</text><text x="210" y="110">• device</text>
+      </g>
+    </svg>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="body"><h3>Cookies &amp; the browser</h3>
+      <p>A page can read your <b>browser, time, language</b> and set <b>cookies</b> to track your visits — sometimes it even asks for your location.</p></div></div>
+  </div>
+</section>
+
+<section id="safe">
+  <h2>Stay safe · 5 rules</h2>
+  <p class="lead">Five habits that stop most scams.</p>
+  <div class="rules">
+    <div class="rule"><p><b>Check the QR.</b> Look for a sticker placed on top of the real code.</p></div>
+    <div class="rule"><p><b>Don't pay through a random QR.</b> Type the official website yourself.</p></div>
+    <div class="rule"><p><b>Shield your card.</b> Use an RFID sleeve or keep cards together.</p></div>
+    <div class="rule"><p><b>Watch for skimmers.</b> Wiggle the slot and cover the keypad.</p></div>
+    <div class="rule"><p><b>Think before you tap.</b> Selfie, extra data, big "discount"? Close the page.</p></div>
+  </div>
+</section>
+
+<section id="vocab">
+  <h2>Know the words</h2>
+  <p class="lead">Key vocabulary for the class (B1).</p>
+  <div class="vocab">
+    <div class="v"><b>scam</b> — a dishonest trick to take your money or data.</div>
+    <div class="v"><b>phishing</b> — fake messages that steal passwords or card details.</div>
+    <div class="v"><b>quishing</b> — phishing through a QR code.</div>
+    <div class="v"><b>QR code</b> — a square code you scan with your phone.</div>
+    <div class="v"><b>fake</b> — not real; made to trick you.</div>
+    <div class="v"><b>suspicious</b> — something that looks wrong or not safe.</div>
+    <div class="v"><b>to verify</b> — to check that something is real.</div>
+    <div class="v"><b>skimmer</b> — a device that copies your card at a slot.</div>
+    <div class="v"><b>to tap</b> — to touch a card or phone to pay.</div>
+    <div class="v"><b>contactless</b> — pay by tapping, without a PIN.</div>
+    <div class="v"><b>NFC</b> — short-range wireless used for tapping/paying.</div>
+    <div class="v"><b>RFID sleeve</b> — a cover that blocks card reading.</div>
+    <div class="v"><b>metadata</b> — hidden data inside a file or photo.</div>
+    <div class="v"><b>GPS location</b> — the exact place where something happened.</div>
+    <div class="v"><b>cookies</b> — small files a website saves to track you.</div>
+    <div class="v"><b>browser</b> — the app you use to open websites.</div>
+    <div class="v"><b>pop-up</b> — a window that appears to get your click.</div>
+    <div class="v"><b>dark pattern</b> — a design that tricks you into "yes".</div>
+    <div class="v"><b>fraud</b> — a crime of cheating people for money.</div>
+    <div class="v"><b>data breach</b> — when private data is stolen or leaked.</div>
+    <div class="v"><b>password</b> — a secret word to protect an account.</div>
+    <div class="v"><b>2FA</b> — a second code to log in safely.</div>
+  </div>
+</section>
+
+<div class="foot">They don't hack you. <b>They trick you.</b><br><span style="display:inline-block;margin-top:8px;font-family:&quot;Space Grotesk&quot;;color:#F3EFE6;font-weight:700">Miguel Pinto</span> · Cybersecurity class
+    <div class="social">
+      <a href="https://github.com/MiguelPilotoMPM">GitHub</a>
+      <a href="https://www.linkedin.com/in/miguel-pinto-morales-446b00218">LinkedIn</a>
+    </div></div>
+</div>
+
+<script>
+  var navs=[].slice.call(document.querySelectorAll('nav button'));
+  var secs=[].slice.call(document.querySelectorAll('section'));
+  function show(id){
+    secs.forEach(function(s){s.classList.toggle('active',s.id===id);});
+    navs.forEach(function(b){b.classList.toggle('active',b.dataset.t===id);});
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  navs.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.t);});});
+  [].slice.call(document.querySelectorAll('.jump')).forEach(function(j){
+    j.addEventListener('click',function(){show(j.dataset.go);});
+  });
+</script>
+</body>
+</html>
