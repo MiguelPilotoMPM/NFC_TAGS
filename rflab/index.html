@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RF//LAB · consola de radio</title>
+<style>
+:root{
+  --bg:#020705; --bg2:#04110b; --g:#00ff9c; --g2:#00c977; --gd:#0b5f3c; --gdd:#06301f;
+  --amb:#ffb000; --red:#ff3860; --cy:#00e5ff; --mag:#ff4dff; --txt:#b9ffd9;
+  --mono:"JetBrains Mono","Fira Code","Cascadia Code",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:14px;overflow:hidden}
+#matrix{position:fixed;inset:0;z-index:0;opacity:.13}
+.crt::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.crt::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:51;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%);animation:flick 6s infinite}
+@keyframes flick{0%,100%{opacity:1}47%{opacity:1}48%{opacity:.85}49%{opacity:1}}
+#app{position:relative;z-index:1;display:grid;height:100%;grid-template-columns:250px 1fr;grid-template-rows:auto 1fr 150px;gap:10px;padding:10px}
+.glow{text-shadow:0 0 6px rgba(0,255,156,.75),0 0 18px rgba(0,255,156,.25)}
+.box{border:1px solid var(--gd);background:linear-gradient(180deg,rgba(0,40,24,.55),rgba(0,12,8,.75));box-shadow:0 0 0 1px rgba(0,255,156,.06) inset,0 0 24px rgba(0,255,156,.06);position:relative;min-width:0;min-height:0}
+.box>.ttl{position:absolute;top:-9px;left:12px;background:var(--bg);padding:0 8px;color:var(--g);font-size:12px;letter-spacing:.12em}
+.box>.ttl::before{content:"┤ "}.box>.ttl::after{content:" ├"}
+header{grid-column:1/3;display:flex;align-items:center;gap:18px;padding:6px 14px}
+pre.logo{margin:0;font-size:17px;line-height:17px;color:var(--g)}
+.status{display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1}
+.chip{border:1px solid var(--gd);padding:3px 8px;font-size:12px;color:var(--g2);white-space:nowrap}
+.chip b{color:var(--g)}.chip.bad b{color:var(--red)}.chip.warn b{color:var(--amb)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:6px;box-shadow:0 0 8px var(--red)}
+.dot.on{background:var(--g);box-shadow:0 0 10px var(--g);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+button,select,input{font-family:var(--mono);font-size:13px;background:transparent;color:var(--g);border:1px solid var(--g2);padding:6px 12px;cursor:pointer}
+button:hover{background:var(--g);color:#000;box-shadow:0 0 14px var(--g)}
+button.alt{border-color:var(--amb);color:var(--amb)}button.alt:hover{background:var(--amb);color:#000;box-shadow:0 0 14px var(--amb)}
+input,select{cursor:text;padding:5px 8px;width:90px;background:#00150c}
+select{cursor:pointer;width:auto}
+nav{padding:16px 0 8px}
+nav .prompt{padding:0 14px 10px;color:var(--g2);font-size:12px}
+nav a{display:block;padding:9px 14px;color:var(--g2);text-decoration:none;border-left:3px solid transparent;cursor:pointer;font-size:13px}
+nav a .k{color:var(--gd);margin-right:8px}
+nav a:hover{color:var(--g);background:rgba(0,255,156,.05)}
+nav a.act{color:#000;background:var(--g);border-left-color:var(--amb);box-shadow:0 0 18px rgba(0,255,156,.45)}
+nav a.act .k{color:#003}
+nav .hw{margin:14px;padding-top:12px;border-top:1px dashed var(--gd);font-size:12px;color:var(--g2);line-height:1.7}
+main{padding:18px 16px 12px;overflow:visible;display:flex;flex-direction:column;gap:10px}
+.view{display:none;flex:1;min-height:0;gap:12px}
+.view.on{display:grid}
+.grid2{grid-template-columns:1fr 1fr}
+.grid2x{grid-template-columns:420px 1fr}
+.stack{display:flex;flex-direction:column;gap:12px;min-height:0}
+.pad{padding:14px 12px 10px}
+canvas{display:block;width:100%;height:100%}
+.cv{position:relative;min-height:0}
+.cv canvas{position:absolute;inset:0}
+.tbl{overflow:auto;flex:1;min-height:0}
+.tblw{display:flex;flex-direction:column;min-height:0}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{position:sticky;top:0;background:#00180e;color:var(--g);text-align:left;padding:5px 6px;border-bottom:1px solid var(--gd);font-weight:normal;letter-spacing:.06em}
+td{padding:4px 6px;border-bottom:1px solid rgba(11,95,60,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+tr.new td{animation:hl 1.6s ease-out}
+@keyframes hl{from{background:rgba(0,255,156,.35)}to{background:transparent}}
+.t-red{color:var(--red)}.t-amb{color:var(--amb)}.t-cy{color:var(--cy)}.t-g{color:var(--g)}.t-dim{color:var(--gd)}.t-mag{color:var(--mag)}
+.bar{display:inline-block;height:8px;background:linear-gradient(90deg,var(--g2),var(--g));box-shadow:0 0 6px var(--g);vertical-align:middle}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kpi{padding:16px 10px 10px;text-align:center}
+.kpi .v{font-size:34px;color:var(--g)}.kpi .l{font-size:11px;color:var(--g2);letter-spacing:.12em}
+.kpi.red .v{color:var(--red);text-shadow:0 0 10px var(--red)}
+.edu{border:1px dashed var(--gd);padding:8px 12px;font-size:12px;color:var(--g2);line-height:1.5}
+.edu::before{content:"// QUÉ ESTÁS VIENDO\A";white-space:pre;color:var(--amb)}
+.verdict{padding:18px;text-align:center;font-size:30px;letter-spacing:.08em;border:2px solid var(--gd)}
+.verdict.fix{color:var(--red);border-color:var(--red);text-shadow:0 0 14px var(--red);animation:blink 1s steps(2) infinite}
+.verdict.rol{color:var(--g);border-color:var(--g);text-shadow:0 0 14px var(--g)}
+.verdict small{display:block;font-size:13px;letter-spacing:.04em;margin-top:6px;color:var(--txt);text-shadow:none}
+@keyframes blink{50%{opacity:.55}}
+.alert{padding:8px 12px;border:1px solid var(--red);color:var(--red);text-shadow:0 0 8px var(--red);animation:blink 1s steps(2) infinite;display:none}
+.ctrls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--g2)}
+footer{grid-column:1/3;padding:14px 12px 8px;overflow:visible}
+#log{height:100%;overflow:hidden;font-size:12.5px;line-height:1.45;display:flex;flex-direction:column;justify-content:flex-end}
+#log div{flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#log .ts{color:var(--gd)}
+.cursor::after{content:"█";animation:blink .9s steps(2) infinite;color:var(--g)}
+.home{grid-template-columns:1fr 1fr}
+.home pre{color:var(--g);font-size:12px;line-height:1.35;margin:0}
+.big{font-size:56px;line-height:1}
+.hex{font-size:22px;color:var(--cy);letter-spacing:.08em;word-break:break-all}
+.bits{font-size:13px;color:var(--g2);word-break:break-all;letter-spacing:.12em}
+.glitch{position:relative}
+.glitch:hover{animation:gl .3s steps(2) 2}
+@keyframes gl{0%{transform:translate(1px,-1px);text-shadow:-2px 0 var(--mag),2px 0 var(--cy)}100%{transform:none}}
+#overlay{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px}
+#overlay pre{color:var(--g);font-size:13px;line-height:1.3}
+</style>
+</head>
+<body class="crt">
+<canvas id="matrix"></canvas>
+
+<div id="overlay">
+<pre class="glow" id="boot"></pre>
+<div style="display:flex;gap:12px">
+  <button onclick="connect()">[ CONECTAR USB ]</button>
+  <button class="alt" onclick="startSim()">[ MODO SIMULACIÓN ]</button>
+</div>
+<div class="t-dim" style="font-size:12px;max-width:640px;text-align:center">Requiere Chrome o Edge (Web Serial). Cierra el monitor serie de PlatformIO antes de conectar.<br>Dispositivo en solo recepción · uso docente con equipos propios.</div>
+</div>
+
+<div id="app">
+<header class="box">
+<pre class="logo glow glitch">╦═╗╔═╗  ╱╱ ╦  ╔═╗╔╗
+╠╦╝╠╣  ╱╱  ║  ╠═╣╠╩╗
+╩╚═╚  ╱╱   ╩═╝╩ ╩╚═╝</pre>
+<div class="status">
+  <span class="chip"><span class="dot" id="dot"></span><b id="link">OFFLINE</b></span>
+  <span class="chip">MODO <b id="smode">—</b></span>
+  <span class="chip">UPTIME <b id="sup">—</b></span>
+  <span class="chip">HEAP <b id="sheap">—</b></span>
+  <span class="chip" id="ccChip">CC1101 <b id="scc">—</b></span>
+  <span class="chip" id="nrfChip">NRF24 <b id="snrf">—</b></span>
+  <span class="chip">PKT/s <b id="spps">0</b></span>
+  <span class="chip">TX <b class="t-red">OFF</b></span>
+</div>
+<button class="alt" onclick="resetESP()" title="Reinicia el ESP32 por la línea RTS">RESET ESP32</button>
+<div class="chip" style="font-size:18px"><b id="clock">--:--:--</b></div>
+</header>
+
+<aside class="box">
+<span class="ttl">MÓDULOS</span>
+<nav>
+  <div class="prompt">root@rflab:~# ./scan<span class="cursor"></span></div>
+  <a data-m="0"><span class="k">[0]</span>SISTEMA</a>
+  <a data-m="1"><span class="k">[1]</span>WIFI_RECON</a>
+  <a data-m="2"><span class="k">[2]</span>PROBE_SNIFF</a>
+  <a data-m="3"><span class="k">[3]</span>BLE_RADAR</a>
+  <a data-m="4"><span class="k">[4]</span>SPECTRUM_2G4</a>
+  <a data-m="5"><span class="k">[5]</span>SPECTRUM_433</a>
+  <a data-m="6"><span class="k">[6]</span>OOK_DECODER</a>
+  <div class="hw" id="hwinfo">teclas 0-6 · C = limpiar<br>F = pantalla completa</div>
+</nav>
+</aside>
+
+<main class="box">
+<span class="ttl" id="mtitle">SISTEMA</span>
+
+<!-- 0 SISTEMA -->
+<section class="view home on" data-v="0">
+  <div class="stack">
+    <div class="box pad"><span class="ttl">ESTADO</span><pre id="sysinfo">esperando enlace...</pre></div>
+    <div class="edu">Este dispositivo solo ESCUCHA el espectro radioeléctrico: no transmite, no interfiere y no se conecta a ninguna red.
+      Cada módulo muestra una capa distinta de lo que viaja por el aire a nuestro alrededor: WiFi, Bluetooth LE, la banda de 2,4 GHz completa y la banda de 433 MHz
+      que usan mandos de garaje, timbres y sensores.</div>
+  </div>
+  <div class="box pad"><span class="ttl">ARCHITECTURE</span><pre>
+   ┌──────────────┐    SPI    ┌──────────────┐
+   │   CC1101     │◄─────────►│              │
+   │  300-928 MHz │  GDO0 ──► │              │   USB / JSON 921600 bd
+   └──────────────┘           │    ESP32     │◄═══════════════════► [ ESTA WEB ]
+   ┌──────────────┐    SPI    │  WiFi + BLE  │
+   │ NRF24 PA+LNA │◄─────────►│  (solo RX)   │
+   │   2.4 GHz    │           │              │
+   └──────────────┘           └──────┬───────┘
+                               I2C   │  GPIO
+                          ┌──────────┴─────────┐
+                          │ OLED 128x64 · D-pad│
+                          └────────────────────┘
+
+  [1] WIFI_RECON    redes, canales y cifrado (escaneo pasivo)
+  [2] PROBE_SNIFF   qué redes buscan los móviles (MAC anonimizada)
+  [3] BLE_RADAR     dispositivos Bluetooth LE y rastreadores
+  [4] SPECTRUM_2G4  ocupación de 2400-2525 MHz (NRF24)
+  [5] SPECTRUM_433  barrido de RSSI en Sub-GHz (CC1101)
+  [6] OOK_DECODER   mandos: código fijo vs rolling code</pre></div>
+</section>
+
+<!-- 1 WIFI -->
+<section class="view grid2x" data-v="1">
+  <div class="stack">
+    <div class="box cv" style="flex:1"><span class="ttl">RADAR</span><canvas id="cvRadarW"></canvas></div>
+    <div class="box cv" style="height:170px"><span class="ttl">REDES POR CANAL</span><canvas id="cvChan"></canvas></div>
+  </div>
+  <div class="stack">
+    <div class="box pad tblw" style="flex:1"><span class="ttl">REDES DETECTADAS · <span id="wcount">0</span></span><div class="tbl"><table><thead><tr><th>SSID</th><th>BSSID</th><th>CH</th><th>RSSI</th><th></th><th>CIFRADO</th></tr></thead><tbody id="wtb"></tbody></table></div></div>
+    <div class="edu">Cada router emite unas 10 tramas «beacon» por segundo anunciando su nombre (SSID), canal y cifrado. El escaneo es <b>pasivo</b>: solo las escuchamos.
+      En 2,4 GHz solo los canales 1, 6 y 11 no se solapan. <span class="t-red">ABIERTA/WEP</span> = tráfico legible por cualquiera; <span class="t-g">WPA3</span> = lo más seguro hoy.</div>
+  </div>
+</section>
+
+<!-- 2 PROBES -->
+<section class="view" data-v="2" style="grid-template-rows:auto auto 1fr auto">
+  <div class="kpis">
+    <div class="box kpi"><div class="v" id="kBeacon">0</div><div class="l">BEACON/s</div></div>
+    <div class="box kpi"><div class="v" id="kProbe">0</div><div class="l">PROBE_REQ/s</div></div>
+    <div class="box kpi"><div class="v" id="kResp">0</div><div class="l">PROBE_RESP/s</div></div>
+    <div class="box kpi"><div class="v" id="kData">0</div><div class="l">DATA/s</div></div>
+    <div class="box kpi" id="kDeauthBox"><div class="v" id="kDeauth">0</div><div class="l">DEAUTH/s</div></div>
+  </div>
+  <div class="ctrls">CANAL <b class="t-g" id="pch">-</b>
+    <select id="selCh"><option value="0">salto 1→13</option></select>
+    <button onclick="send('CLEAR')">limpiar</button>
+    <span class="t-dim">· MAC truncada a fabricante (OUI) por privacidad</span></div>
+  <div class="box pad tblw"><span class="ttl">PROBE REQUESTS · <span id="pcount">0</span></span><div class="tbl"><table><thead><tr><th>MAC (OUI)</th><th>TIPO</th><th>RED BUSCADA</th><th>RSSI</th><th>N</th><th>HACE</th></tr></thead><tbody id="ptb"></tbody></table></div></div>
+  <div class="edu">Cuando el WiFi del móvil está encendido, este pregunta «¿está por aquí la red X?» con <i>probe requests</i>, y a veces revela nombres de redes guardadas (casa, trabajo, hotel…).
+    Por eso los móviles modernos usan <b>MAC aleatoria</b> (bit «localmente administrada») y envían probes sin nombre.</div>
+</section>
+
+<!-- 3 BLE -->
+<section class="view grid2x" data-v="3">
+  <div class="stack">
+    <div class="box cv" style="flex:1"><span class="ttl">RADAR BLE</span><canvas id="cvRadarB"></canvas></div>
+    <div class="box pad" style="height:150px"><span class="ttl">RESUMEN</span><pre id="bsum" style="margin:0;font-size:13px"></pre></div>
+  </div>
+  <div class="stack">
+    <div class="alert" id="trkAlert">[!] RASTREADOR CERCA: AirTag / SmartTag / Tile</div>
+    <div class="box pad tblw" style="flex:1"><span class="ttl">DISPOSITIVOS · <span id="bcount">0</span> · <span id="brate">0</span> anuncios/s</span><div class="tbl"><table><thead><tr><th>MAC</th><th>DIR</th><th>NOMBRE</th><th>TIPO</th><th>RSSI</th><th>N</th></tr></thead><tbody id="btb"></tbody></table></div></div>
+    <div class="edu">Los dispositivos BLE se anuncian varias veces por segundo. El fabricante se deduce de los datos del anuncio (Apple 0x004C, Samsung, Microsoft…).
+      Escaneo <b>pasivo</b>: no pedimos nada, por eso muchos no muestran nombre. La distancia por RSSI es muy imprecisa: cuerpos y paredes atenúan.</div>
+  </div>
+</section>
+
+<!-- 4 SPEC 2.4 -->
+<section class="view" data-v="4" style="grid-template-rows:1fr 1fr auto">
+  <div class="box cv"><span class="ttl">ESPECTRO 2400-2525 MHz · NRF24 RPD (&gt; -64 dBm)</span><canvas id="cvS24"></canvas></div>
+  <div class="box cv"><span class="ttl">CASCADA (WATERFALL)</span><canvas id="cvW24"></canvas></div>
+  <div class="edu">El NRF24 recorre 126 canales de 1 MHz y nos dice si en cada uno hay energía por encima de -64 dBm. Las redes WiFi aparecen como «montañas» de ~20 MHz (sombreados 1/6/11);
+    el Bluetooth como puntos que saltan por toda la banda; un microondas encendido «ensucia» la zona de 2,45 GHz.</div>
+</section>
+
+<!-- 5 SPEC 433 -->
+<section class="view" data-v="5" style="grid-template-rows:auto 1fr 1fr auto">
+  <div class="ctrls">DESDE <input id="f0" value="430.0"> HASTA <input id="f1" value="440.0"> MHz
+    <button onclick="span()">aplicar</button>
+    <button onclick="spanP(433.05,434.79)">ISM 433</button>
+    <button onclick="spanP(430,440)">430-440</button>
+    <button onclick="spanP(310,320)">315</button>
+    <button onclick="spanP(863,870)">868</button>
+    <span>PICO <b class="t-amb" id="speak">—</b></span></div>
+  <div class="box cv"><span class="ttl">RSSI (dBm) · <span class="t-g">actual</span> / <span class="t-amb">retención de picos</span></span><canvas id="cvS433"></canvas></div>
+  <div class="box cv"><span class="ttl">CASCADA</span><canvas id="cvW433"></canvas></div>
+  <div class="edu">El CC1101 sintoniza cada frecuencia y mide la potencia recibida (RSSI). Pulsa un mando cerca: aparece un pico en su frecuencia (en Europa, casi siempre 433,92 MHz).
+    Nuestra antena y el filtro de la placa son de 433 MHz: en 868 MHz el módulo «oye» mucho peor (adaptación de impedancias).</div>
+</section>
+
+<!-- 6 DECODER -->
+<section class="view" data-v="6" style="grid-template-columns:1fr 330px;grid-template-rows:auto 1fr auto">
+  <div class="ctrls" style="grid-column:1/3">FRECUENCIA
+    <button onclick="freq(433.92)">433.92</button><button onclick="freq(315)">315.00</button><button onclick="freq(868.35)">868.35</button>
+    <input id="fq" value="433.92"><button onclick="freq(+document.getElementById('fq').value)">fijar</button>
+    <button onclick="send('CLEAR')">limpiar</button>
+    <span>ACTUAL <b class="t-g" id="dfreq">—</b> MHz · tramas <b id="dframes">0</b></span></div>
+  <div class="stack">
+    <div class="verdict" id="verdict">ESPERANDO SEÑAL…<small>pulsa un mando cerca de la antena</small></div>
+    <div class="box pad"><span class="ttl">ÚLTIMA TRAMA</span>
+      <div class="hex glow" id="lhex">—</div><div class="bits" id="lbits"></div></div>
+    <div class="box cv" style="flex:1;min-height:140px"><span class="ttl">FORMA DE ONDA DEMODULADA (GDO0)</span><canvas id="cvWave"></canvas></div>
+  </div>
+  <div class="stack">
+    <div class="box cv" style="height:220px"><span class="ttl">RSSI</span><canvas id="cvRssi"></canvas></div>
+    <div class="box pad tblw" style="flex:1"><span class="ttl">PULSACIONES</span><div class="tbl"><table><thead><tr><th>HACE</th><th>BITS</th><th>CÓDIGO</th><th>ENC</th><th>×</th></tr></thead><tbody id="dtb"></tbody></table></div></div>
+  </div>
+  <div class="edu" style="grid-column:1/3">Los mandos baratos envían siempre la misma ráfaga de bits (OOK: la portadora se enciende y apaga). Si dos pulsaciones dan el <span class="t-red">mismo código</span>,
+    cualquiera que lo grabe podría repetirlo (<i>replay</i>). Los mandos con <span class="t-g">rolling code</span> (KeeLoq…) cambian el código en cada pulsación. Codificación: PWM = varía la anchura del pulso; PPM = varía el hueco entre pulsos.</div>
+</section>
+</main>
+
+<footer class="box"><span class="ttl">CONSOLA</span><div id="log"></div></footer>
+</div>
+
+<script>
+"use strict";
+// ======================================================================== util
+const $ = id => document.getElementById(id);
+const MODES = ["SISTEMA","WIFI_RECON","PROBE_SNIFF","BLE_RADAR","SPECTRUM_2G4","SPECTRUM_433","OOK_DECODER"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hash = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0); };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = { g: css("--g"), g2: css("--g2"), gd: css("--gd"), amb: css("--amb"), red: css("--red"), cy: css("--cy"), mag: css("--mag") };
+
+let uiMode = 0, devMode = -1, link = false, sim = false, pkts = 0, last = null;
+const seen = { wifi: new Set(), ble: new Set(), probes: new Set(), press: "" , trk: new Set()};
+
+// ======================================================================== log
+function log(msg, cls = "") {
+  const d = document.createElement("div");
+  const t = new Date().toTimeString().slice(0, 8);
+  d.innerHTML = `<span class="ts">[${t}]</span> <span class="${cls}">${msg}</span>`;
+  const L = $("log"); L.appendChild(d);
+  while (L.children.length > 40) L.removeChild(L.firstChild);
+}
+
+// ======================================================================== canvas helpers
+function fit(cv) {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(10, Math.round(r.width * dpr)), h = Math.max(10, Math.round(r.height * dpr));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const x = cv.getContext("2d"); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return [x, r.width, r.height];
+}
+function gridLines(x, w, h, nx, ny) {
+  x.strokeStyle = "rgba(11,95,60,.35)"; x.lineWidth = 1; x.beginPath();
+  for (let i = 1; i < nx; i++) { const X = Math.round(w * i / nx) + .5; x.moveTo(X, 0); x.lineTo(X, h); }
+  for (let i = 1; i < ny; i++) { const Y = Math.round(h * i / ny) + .5; x.moveTo(0, Y); x.lineTo(w, Y); }
+  x.stroke();
+}
+function glowStroke(x, color, width = 2, blur = 10) { x.strokeStyle = color; x.lineWidth = width; x.shadowColor = color; x.shadowBlur = blur; }
+
+// ======================================================================== radar
+const radarAngle = { w: 0, b: 0 };
+const radarItems = { w: [], b: [] };
+function drawRadar(cv, items, key) {
+  const [x, w, h] = fit(cv);
+  const cx = w / 2, cy = h / 2 + 4, R = Math.min(w, h) / 2 - 22;
+  x.clearRect(0, 0, w, h);
+  x.strokeStyle = "rgba(0,201,119,.35)"; x.lineWidth = 1; x.shadowBlur = 0;
+  for (let i = 1; i <= 4; i++) { x.beginPath(); x.arc(cx, cy, R * i / 4, 0, 7); x.stroke(); }
+  x.beginPath(); x.moveTo(cx - R, cy); x.lineTo(cx + R, cy); x.moveTo(cx, cy - R); x.lineTo(cx, cy + R); x.stroke();
+  x.fillStyle = C.gd; x.font = "10px monospace";
+  [-30, -50, -70, -90].forEach((d, i) => x.fillText(d + " dBm", cx + 4, cy - R * (i + 1) / 4 + 12));
+  // barrido
+  radarAngle[key] = (radarAngle[key] + 0.035) % (Math.PI * 2);
+  const a = radarAngle[key];
+  const grd = x.createConicGradient ? x.createConicGradient(a - 0.9, cx, cy) : null;
+  if (grd) {
+    grd.addColorStop(0, "rgba(0,255,156,0)"); grd.addColorStop(0.14, "rgba(0,255,156,.28)"); grd.addColorStop(0.145, "rgba(0,255,156,0)");
+    x.fillStyle = grd; x.beginPath(); x.moveTo(cx, cy); x.arc(cx, cy, R, 0, 7); x.fill();
+  }
+  glowStroke(x, C.g, 1.5, 8); x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + R * Math.cos(a), cy + R * Math.sin(a)); x.stroke();
+  // blips
+  x.shadowBlur = 12;
+  for (const it of items) {
+    const ang = (hash(it.id) % 3600) / 3600 * Math.PI * 2;
+    const r = R * clamp((-it.rssi - 25) / 75, 0.05, 1);
+    const px = cx + r * Math.cos(ang), py = cy + r * Math.sin(ang);
+    const diff = ((a - ang) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+    const fresh = 1 - diff / (Math.PI * 2);
+    x.globalAlpha = 0.35 + 0.65 * fresh;
+    x.fillStyle = it.color || C.g; x.shadowColor = x.fillStyle;
+    x.beginPath(); x.arc(px, py, it.big ? 5 : 3.5, 0, 7); x.fill();
+    if (it.label && fresh > 0.55) { x.font = "11px monospace"; x.fillText(it.label.slice(0, 18), px + 7, py + 4); }
+  }
+  x.globalAlpha = 1; x.shadowBlur = 0;
+}
+
+// ======================================================================== spectrum + waterfall
+function heat(v) {   // 0..1 -> color
+  v = clamp(v, 0, 1);
+  if (v < 0.25) return `rgb(0,${Math.round(40 + v * 4 * 120)},${Math.round(30 + v * 4 * 60)})`;
+  if (v < 0.6) return `rgb(${Math.round((v - .25) / .35 * 255)},${Math.round(160 + (v - .25) / .35 * 95)},60)`;
+  return `rgb(255,${Math.round(255 - (v - .6) / .4 * 200)},${Math.round(60 - (v - .6) / .4 * 60)})`;
+}
+function waterfall(cv, vals) {
+  const dpr = window.devicePixelRatio || 1;
+  const r = cv.getBoundingClientRect();
+  const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const x = cv.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0);
+  const row = Math.max(2, Math.round(3 * dpr));
+  x.drawImage(cv, 0, 0, W, H - row, 0, row, W, H - row);
+  const n = vals.length;
+  for (let i = 0; i < n; i++) { x.fillStyle = heat(vals[i]); x.fillRect(Math.floor(i * W / n), 0, Math.ceil(W / n) + 1, row); }
+}
+function drawSpec24(d) {
+  const [x, w, h] = fit($("cvS24"));
+  x.clearRect(0, 0, w, h); gridLines(x, w, h, 25, 5);
+  const n = d.lvl.length, bw = w / n, top = 18;
+  // canales WiFi 1/6/11
+  for (const ch of [1, 6, 11]) {
+    const c = 5 * ch + 7, x0 = (c - 10) * bw, x1 = (c + 10) * bw;
+    x.fillStyle = "rgba(0,229,255,.06)"; x.fillRect(x0, top, x1 - x0, h - top);
+    x.fillStyle = C.cy; x.font = "11px monospace"; x.fillText("WiFi " + ch, x0 + 4, top + 12);
+  }
+  for (let i = 0; i < n; i++) {
+    const v = d.lvl[i] / 100, p = d.peak[i] / 100;
+    const bh = v * (h - top - 16);
+    x.fillStyle = heat(v); x.shadowColor = x.fillStyle; x.shadowBlur = v > .3 ? 8 : 0;
+    x.fillRect(i * bw + 1, h - 16 - bh, Math.max(1, bw - 2), bh);
+    x.shadowBlur = 0; x.fillStyle = C.amb; x.fillRect(i * bw + 1, h - 16 - p * (h - top - 16), Math.max(1, bw - 2), 2);
+  }
+  x.fillStyle = C.g2; x.font = "11px monospace";
+  for (let f = 2400; f <= 2525; f += 25) x.fillText(f + "", (f - 2400) * bw, h - 3);
+  waterfall($("cvW24"), d.lvl.map(v => v / 100));
+}
+function drawSpec433(d) {
+  const [x, w, h] = fit($("cvS433"));
+  x.clearRect(0, 0, w, h); gridLines(x, w, h, 10, 6);
+  const lo = -110, hi = -20, n = d.cur.length, top = 8, bot = h - 16;
+  const Y = v => bot - (clamp(v, lo, hi) - lo) / (hi - lo) * (bot - top);
+  x.fillStyle = C.g2; x.font = "10px monospace";
+  for (let v = -100; v <= -30; v += 20) x.fillText(v, 3, Y(v) - 2);
+  const line = (arr, col, wd, fill) => {
+    x.beginPath(); arr.forEach((v, i) => { const X = i / (n - 1) * w; i ? x.lineTo(X, Y(v)) : x.moveTo(X, Y(v)); });
+    if (fill) { const g = x.createLinearGradient(0, top, 0, bot); g.addColorStop(0, "rgba(0,255,156,.35)"); g.addColorStop(1, "rgba(0,255,156,0)");
+      x.save(); x.lineTo(w, bot); x.lineTo(0, bot); x.closePath(); x.fillStyle = g; x.fill(); x.restore();
+      x.beginPath(); arr.forEach((v, i) => { const X = i / (n - 1) * w; i ? x.lineTo(X, Y(v)) : x.moveTo(X, Y(v)); }); }
+    glowStroke(x, col, wd, 10); x.stroke(); x.shadowBlur = 0;
+  };
+  line(d.peak, C.amb, 1.2, false);
+  line(d.cur, C.g, 2, true);
+  // marcador pico
+  const pi = d.cur.indexOf(Math.max(...d.cur)), px = pi / (n - 1) * w;
+  x.strokeStyle = C.mag; x.setLineDash([4, 4]); x.beginPath(); x.moveTo(px, top); x.lineTo(px, bot); x.stroke(); x.setLineDash([]);
+  x.fillStyle = C.mag; x.fillText(d.peakF.toFixed(3) + " MHz " + Math.round(d.peakDb) + " dBm", Math.min(px + 6, w - 170), top + 12);
+  x.fillStyle = C.g2;
+  for (let i = 0; i <= 10; i++) { const f = d.f0 + (d.f1 - d.f0) * i / 10; x.fillText(f.toFixed(1), i / 10 * w - (i === 10 ? 34 : 0), h - 3); }
+  $("speak").textContent = d.peakF.toFixed(3) + " MHz / " + Math.round(d.peakDb) + " dBm";
+  waterfall($("cvW433"), d.cur.map(v => (v + 105) / 75));
+}
+
+// ======================================================================== decoder
+const rssiHist = [];
+function drawWave(wv) {
+  const [x, w, h] = fit($("cvWave"));
+  x.clearRect(0, 0, w, h); gridLines(x, w, h, 20, 4);
+  if (!wv || !wv.length) { x.fillStyle = C.gd; x.font = "13px monospace"; x.fillText("sin trama todavía", 14, h / 2); return; }
+  const total = wv.reduce((s, v) => s + Math.abs(v), 0);
+  const yH = h * .25, yL = h * .78; let t = 0;
+  glowStroke(x, C.g, 2, 10); x.beginPath(); x.moveTo(0, wv[0] > 0 ? yH : yL);
+  for (const v of wv) { const y = v > 0 ? yH : yL; const X0 = t / total * w; t += Math.abs(v); const X1 = t / total * w; x.lineTo(X0, y); x.lineTo(X1, y); }
+  x.stroke(); x.shadowBlur = 0;
+  x.fillStyle = C.g2; x.font = "11px monospace"; x.fillText((total / 1000).toFixed(1) + " ms · " + wv.length + " pulsos", 8, h - 6);
+}
+function drawRssi(v) {
+  rssiHist.push(v); while (rssiHist.length > 160) rssiHist.shift();
+  const [x, w, h] = fit($("cvRssi"));
+  x.clearRect(0, 0, w, h); gridLines(x, w, h, 4, 4);
+  const lo = -110, hi = -20, Y = q => h - 8 - (clamp(q, lo, hi) - lo) / (hi - lo) * (h - 30);
+  x.beginPath(); rssiHist.forEach((q, i) => { const X = i / 159 * w; i ? x.lineTo(X, Y(q)) : x.moveTo(X, Y(q)); });
+  glowStroke(x, v > -70 ? C.red : v > -90 ? C.amb : C.g, 2, 10); x.stroke(); x.shadowBlur = 0;
+  x.fillStyle = C.g; x.font = "26px monospace"; x.fillText(v + " dBm", 10, 30);
+}
+
+// ======================================================================== render por modo
+function rssiBar(r) { const p = clamp((r + 95) / 65, 0, 1); return `<span class="bar" style="width:${Math.round(p * 60)}px"></span>`; }
+function secCls(s) { return /ABIERTA|WEP/.test(s) ? "t-red" : /WPA3/.test(s) ? "t-g" : /WPA2/.test(s) ? "t-cy" : "t-amb"; }
+function ago(s) { return s < 60 ? s + "s" : Math.floor(s / 60) + "m"; }
+
+function render(m) {
+  const d = m.d || {};
+  switch (m.mode) {
+    case 0: {
+      $("sysinfo").textContent =
+`> firmware ........ v${m.hw?.fw ?? "?"}
+> enlace .......... ${sim ? "SIMULACIÓN" : "USB Web Serial 921600"}
+> CC1101 .......... ${m.hw?.cc ? "OK (versión 0x" + (m.hw.ccv ?? 0).toString(16).toUpperCase() + ")" : "NO DETECTADO"}
+> NRF24 ........... ${m.hw?.nrf ? "OK" : "NO DETECTADO"}
+> memoria libre ... ${m.heap} bytes
+> transmisión ..... DESACTIVADA (solo RX)
+
+Usa la cruceta (◄ ►) o las teclas 0-6 para cambiar de módulo.`;
+      break;
+    }
+    case 1: {
+      const nets = d.nets || [];
+      $("wcount").textContent = nets.length;
+      $("wtb").innerHTML = nets.map(n => {
+        const id = n.bssid, isNew = !seen.wifi.has(id);
+        if (isNew) { seen.wifi.add(id); log(`[+] red <b>${esc(n.ssid || "<oculta>")}</b> ch${n.ch} ${n.rssi}dBm <span class="${secCls(n.sec)}">${n.sec}</span>`); }
+        return `<tr class="${isNew ? "new" : ""}"><td>${n.ssid ? esc(n.ssid) : '<span class="t-dim">&lt;oculta&gt;</span>'}</td><td class="t-dim">${n.bssid}</td><td>${n.ch}</td><td>${n.rssi}</td><td>${rssiBar(n.rssi)}</td><td class="${secCls(n.sec)}">${n.sec}</td></tr>`;
+      }).join("");
+      radarItems.w = (nets.map(n => ({ id: n.bssid, rssi: n.rssi, label: n.ssid || "<oculta>", color: /ABIERTA|WEP/.test(n.sec) ? C.red : /WPA3/.test(n.sec) ? C.cy : C.g })), "w");
+      // canales
+      const [x, w, h] = fit($("cvChan")); x.clearRect(0, 0, w, h);
+      const pc = d.perCh || [], mx = Math.max(3, ...pc), bw = w / 13;
+      pc.forEach((v, i) => {
+        const bh = v / mx * (h - 40);
+        x.fillStyle = [0, 5, 10].includes(i) ? C.cy : C.g; x.shadowColor = x.fillStyle; x.shadowBlur = 10;
+        x.fillRect(i * bw + 6, h - 20 - bh, bw - 12, bh); x.shadowBlur = 0;
+        x.fillStyle = C.g2; x.font = "11px monospace"; x.fillText(i + 1, i * bw + bw / 2 - 4, h - 5);
+        if (v) { x.fillStyle = C.g; x.fillText(v, i * bw + bw / 2 - 4, h - 24 - bh); }
+      });
+      break;
+    }
+    case 2: {
+      const r = d.rate || {};
+      $("kBeacon").textContent = r.beacon ?? 0; $("kProbe").textContent = r.probeReq ?? 0; $("kResp").textContent = r.probeResp ?? 0;
+      $("kData").textContent = r.data ?? 0; $("kDeauth").textContent = r.deauth ?? 0;
+      $("kDeauthBox").classList.toggle("red", (r.deauth ?? 0) > 5);
+      $("pch").textContent = (d.ch ?? "-") + (d.hop ? " (salto)" : " (fijo)");
+      const P = (d.probes || []).slice().sort((a, b) => a.age - b.age);
+      $("pcount").textContent = P.length;
+      $("ptb").innerHTML = P.map(p => {
+        const id = p.mac + p.ssid, isNew = !seen.probes.has(id);
+        if (isNew) { seen.probes.add(id); log(`[~] probe: ${p.mac} busca <b>${esc(p.ssid || "(cualquiera)")}</b>${p.rnd ? ' <span class="t-dim">MAC aleatoria</span>' : ""}`, "t-cy"); }
+        return `<tr class="${isNew ? "new" : ""}"><td class="t-dim">${p.mac}</td><td class="${p.rnd ? "t-g" : "t-amb"}">${p.rnd ? "ALEATORIA" : "REAL"}</td><td>${p.ssid ? esc(p.ssid) : '<span class="t-dim">(broadcast)</span>'}</td><td>${p.rssi}</td><td>${p.n}</td><td>${ago(p.age)}</td></tr>`;
+      }).join("");
+      break;
+    }
+    case 3: {
+      const D = (d.devs || []).slice().sort((a, b) => b.rssi - a.rssi);
+      $("bcount").textContent = D.length; $("brate").textContent = d.rate ?? 0;
+      let trk = 0; const kinds = {};
+      $("btb").innerHTML = D.map(b => {
+        const isNew = !seen.ble.has(b.mac);
+        if (isNew) { seen.ble.add(b.mac); log(`[+] BLE ${b.mac} <b>${esc(b.kind)}</b>${b.name ? " «" + esc(b.name) + "»" : ""} ${b.rssi}dBm`, b.trk ? "t-red" : ""); }
+        if (b.trk) trk++;
+        kinds[b.kind] = (kinds[b.kind] || 0) + 1;
+        return `<tr class="${isNew ? "new" : ""}"><td class="t-dim">${b.mac}</td><td class="${b.rnd ? "t-g" : "t-amb"}">${b.rnd ? "RAND" : "PUB"}</td><td>${esc(b.name) || '<span class="t-dim">—</span>'}</td><td class="${b.trk ? "t-red" : ""}">${esc(b.kind)}</td><td>${b.rssi} ${rssiBar(b.rssi)}</td><td>${b.n}</td></tr>`;
+      }).join("");
+      $("trkAlert").style.display = trk ? "block" : "none";
+      $("bsum").textContent = Object.entries(kinds).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => k.padEnd(26, ".") + " " + v).join("\n");
+      radarItems.b = (D.map(b => ({ id: b.mac, rssi: b.rssi, label: b.name || b.kind, color: b.trk ? C.red : b.kind.startsWith("Apple") ? C.cy : C.g, big: b.trk })));
+      break;
+    }
+    case 4: if (d.lvl) drawSpec24(d); break;
+    case 5: if (d.cur) drawSpec433(d); break;
+    case 6: {
+      $("dfreq").textContent = (+d.freq || 0).toFixed(2); $("dframes").textContent = d.frames ?? 0;
+      drawRssi(d.rssi ?? -120);
+      const H = d.hist || [];
+      $("dtb").innerHTML = H.map(p => `<tr><td>${ago(p.age)}</td><td>${p.bits}</td><td class="t-cy">${p.hex}</td><td>${p.enc}</td><td>${p.rep}</td></tr>`).join("");
+      if (H.length) {
+        const p = H[0], key = p.hex + "|" + p.bits;
+        $("lhex").textContent = "0x" + p.hex;
+        const bin = BigInt("0x" + p.hex).toString(2).padStart(Math.ceil(p.bits / 4) * 4, "0").slice(-p.bits);
+        $("lbits").textContent = bin.replace(/(.{8})/g, "$1 ") + ` · ${p.bits} bits · ${p.enc} · T≈${p.T} µs`;
+        if (key !== seen.press && p.age < 2) { seen.press = key; log(`[+] trama 433: ${p.bits}b 0x${p.hex} ${p.enc} T=${p.T}µs ${p.rssi}dBm`, "t-amb"); }
+      }
+      const v = $("verdict");
+      if (d.verdict === 1) { v.className = "verdict fix"; v.innerHTML = "⚠ CÓDIGO FIJO<small>misma secuencia en cada pulsación → vulnerable a replay</small>"; }
+      else if (d.verdict === 2) { v.className = "verdict rol"; v.innerHTML = "✔ CÓDIGO VARIABLE<small>la secuencia cambia en cada pulsación (rolling code)</small>"; }
+      else { v.className = "verdict"; v.innerHTML = "ESPERANDO SEÑAL…<small>pulsa el mando dos veces, con una pausa</small>"; }
+      drawWave(d.wave);
+      break;
+    }
+  }
+}
+
+function onTelemetry(m) {
+  pkts++; lastTel = Date.now(); warned = false;
+  last = m;
+  if (m.mode !== devMode) { devMode = m.mode; if (m.mode !== uiMode) selectView(m.mode, false); log(`[*] módulo activo: ${MODES[m.mode]}`, "t-g"); }
+  $("smode").textContent = MODES[m.mode];
+  $("sup").textContent = new Date(m.up * 1000).toISOString().slice(11, 19);
+  $("sheap").textContent = Math.round(m.heap / 1024) + " KB";
+  $("scc").textContent = m.hw?.cc ? "OK" : "NO"; $("ccChip").className = "chip" + (m.hw?.cc ? "" : " bad");
+  $("snrf").textContent = m.hw?.nrf ? "OK" : "NO"; $("nrfChip").className = "chip" + (m.hw?.nrf ? "" : " bad");
+  render(m);
+}
+
+// ======================================================================== vistas / teclado
+function selectView(m, sendCmd = true) {
+  uiMode = m;
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("act", +a.dataset.m === m));
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", +v.dataset.v === m));
+  $("mtitle").textContent = MODES[m];
+  if (sendCmd) send("MODE " + m);
+  if (sim) simMode = m;
+}
+document.querySelectorAll("nav a").forEach(a => a.onclick = () => selectView(+a.dataset.m));
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  if (/^[0-6]$/.test(e.key)) selectView(+e.key);
+  else if (e.key === "c" || e.key === "C") send("CLEAR");
+  else if (e.key === "f" || e.key === "F") document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+});
+for (let c = 1; c <= 13; c++) $("selCh").insertAdjacentHTML("beforeend", `<option value="${c}">canal ${c}</option>`);
+$("selCh").onchange = e => send("CH " + e.target.value);
+function span() { send(`SPAN ${+$("f0").value} ${+$("f1").value}`); }
+function spanP(a, b) { $("f0").value = a; $("f1").value = b; span(); }
+function freq(f) { if (f > 0) { $("fq").value = f; send("FREQ " + f); } }
+
+// ======================================================================== Web Serial
+const BAUD = 921600;          // debe coincidir con SERIAL_BAUD en include/config.h
+let port = null, writer = null, keepReading = false;
+async function connect() {
+  if (!("serial" in navigator)) { alert("Este navegador no soporta Web Serial. Usa Chrome o Edge."); return; }
+  try {
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: BAUD, bufferSize: 1 << 16 });
+    // DTR/RTS en reposo: no reiniciar el ESP32 al conectar (circuito de auto-reset)
+    try { await port.setSignals({ dataTerminalReady: false, requestToSend: false }); } catch (e) {}
+  } catch (e) { log("[x] no se pudo abrir el puerto: " + e.message, "t-red"); return; }
+  sim = false; link = true; keepReading = true; setLink(); lastTel = Date.now();
+  $("overlay").style.display = "none";
+  writer = port.writable.getWriter();
+  log("[*] enlace USB establecido (" + BAUD + " bd)", "t-g");
+  setTimeout(() => send("MODE " + uiMode), 300);
+  readLoop();
+}
+function handleLine(line) {
+  line = line.trim();
+  if (!line) return;
+  if (line[0] === "{") { try { onTelemetry(JSON.parse(line)); } catch (e) { /* línea cortada o con ruido */ } }
+  else if (line[0] === "#") log(esc(line.slice(1).trim()), "t-dim");
+  else if (rawShown++ < 60) log("&gt; " + esc(line.slice(0, 160)), "t-dim");   // arranque / errores del ESP32
+}
+let rawShown = 0, lastTel = 0, warned = false;
+async function resetESP() {
+  if (!port) { log("[x] conecta primero el USB", "t-red"); return; }
+  log("[*] reiniciando ESP32 (EN por RTS)...", "t-amb"); rawShown = 0; warned = false;
+  try {
+    await port.setSignals({ dataTerminalReady: false, requestToSend: true });
+    await new Promise(r => setTimeout(r, 120));
+    await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+  } catch (e) { log("[x] " + e.message, "t-red"); }
+}
+setInterval(() => {
+  if (link && !warned && Date.now() - lastTel > 4000) {
+    warned = true;
+    log("[!] conectado pero sin datos del ESP32 · pulsa RESET ESP32 arriba para ver su arranque", "t-amb");
+  }
+}, 1000);
+async function readLoop() {
+  const dec = new TextDecoder();
+  let buf = "", errs = 0;
+  // Los errores de framing/paridad no son fatales: Web Serial crea un nuevo
+  // "readable" y se puede seguir leyendo. Solo salimos si el puerto desaparece.
+  while (keepReading && port && port.readable) {
+    const reader = port.readable.getReader();
+    try {
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n")) >= 0) { handleLine(buf.slice(0, i)); buf = buf.slice(i + 1); }
+        if (buf.length > 200000) buf = "";
+      }
+    } catch (e) {
+      errs++;
+      buf = "";
+      if (errs <= 3 || errs % 20 === 0) log("[!] " + e.message + " · ignorado, sigo leyendo (" + errs + ")", "t-amb");
+      await new Promise(r => setTimeout(r, 50));
+    } finally {
+      try { reader.releaseLock(); } catch (e) {}
+    }
+  }
+  link = false; setLink();
+  log("[x] enlace USB cerrado", "t-red");
+}
+navigator.serial && navigator.serial.addEventListener("disconnect", () => { keepReading = false; link = false; setLink(); log("[x] dispositivo desconectado", "t-red"); });
+async function send(cmd) {
+  if (sim) { simCmd(cmd); return; }
+  if (!writer) return;
+  try { await writer.write(new TextEncoder().encode(cmd + "\n")); } catch (e) {}
+}
+function setLink() {
+  $("dot").classList.toggle("on", link || sim);
+  $("link").textContent = sim ? "SIMULACIÓN" : link ? "ONLINE" : "OFFLINE";
+}
+setInterval(() => { if (link) send("PING"); }, 2000);
+setInterval(() => { $("spps").textContent = pkts; pkts = 0; }, 1000);
+setInterval(() => { $("clock").textContent = new Date().toTimeString().slice(0, 8); }, 500);
+
+// ======================================================================== simulador (ensayo sin hardware)
+let simMode = 0, simT = 0, simPress = [], simFrames = 0, simFreq = 433.92, simSpan = [430, 440];
+const simPeak433 = new Array(100).fill(-110), simPeak24 = new Array(126).fill(0), simLvl24 = new Array(126).fill(0);
+const SIM_NETS = [["MOVISTAR_8A21","WPA2",6,-48],["DIGIFIBRA-PLUS","WPA2/WPA3",1,-56],["eduroam","WPA2-ENT",11,-61],["Orange-5G","WPA3",11,-67],
+  ["Biblioteca_Libre","ABIERTA",1,-72],["","WPA2",6,-74],["Vodafone-C0FFEE","WPA2",3,-79],["HP-Print-22-LaserJet","ABIERTA",9,-83],["Lowi_9F33","WPA2",13,-86],["ROUTER_VIEJO","WEP",4,-88]];
+const SIM_BLE = [["Apple (iPhone/Mac/Watch)","",-52,0],["AirPods / Beats","AirPods Pro",-60,0],["Samsung","Galaxy Watch5",-66,0],["Apple Find My (AirTag...)","",-70,1],
+  ["Microsoft","",-74,0],["Xiaomi","Mi Band 7",-78,0],["Google Fast Pair","",-81,0],["BLE","",-86,0],["Espressif (ESP32)","ESP32-sensor",-63,0]];
+const SIM_PROBES = [["DA:A1:19","",1],["3C:22:FB","MOVISTAR_CASA",0],["F2:6B:01","",1],["AC:BC:32","Hotel_Paradise_Guest",0],["7E:11:90","",1],["B8:27:EB","eduroam",0]];
+const rnd = (a, b) => a + Math.random() * (b - a);
+function startSim() {
+  sim = true; link = false; setLink(); $("overlay").style.display = "none";
+  log("[*] MODO SIMULACIÓN: datos sintéticos para ensayar la demo", "t-amb");
+  setInterval(simTick, 250);
+  simTick();
+}
+function simCmd(c) {
+  const [k, a, b] = c.split(" ");
+  if (k === "MODE") simMode = +a;
+  if (k === "FREQ") simFreq = +a;
+  if (k === "SPAN") simSpan = [+a, +b];
+  if (k === "CLEAR") { simPress = []; simFrames = 0; simPeak433.fill(-110); simPeak24.fill(0); }
+}
+function simTick() {
+  simT += 0.25;
+  const m = { t: "s", mode: simMode, up: Math.floor(simT), heap: 152000 + Math.round(rnd(-3000, 3000)), hw: { cc: true, ccv: 0x14, nrf: true, fw: "1.0.0-sim" }, d: {} };
+  const d = m.d;
+  if (simMode === 1) {
+    const k = Math.min(SIM_NETS.length, 3 + Math.floor(simT / 1.5));
+    d.nets = SIM_NETS.slice(0, k).map(([s, sec, ch, r], i) => ({ ssid: s, sec, ch, rssi: Math.round(r + rnd(-3, 3)),
+      bssid: (hash(s + i) >>> 0).toString(16).padStart(8, "0").toUpperCase().match(/../g).concat(["4E", "21"]).slice(0, 6).join(":") }));
+    d.perCh = Array.from({ length: 13 }, (_, i) => d.nets.filter(n => n.ch === i + 1).length);
+  }
+  if (simMode === 2) {
+    d.ch = Math.floor(simT * 3) % 13 + 1; d.hop = true;
+    d.rate = { beacon: Math.round(rnd(60, 110)), probeReq: Math.round(rnd(2, 14)), probeResp: Math.round(rnd(1, 9)), data: Math.round(rnd(150, 900)), deauth: 0, other: 3 };
+    const k = Math.min(SIM_PROBES.length, 1 + Math.floor(simT / 2));
+    d.probes = SIM_PROBES.slice(0, k).map(([mac, ssid, r], i) => ({ mac: mac + ":**:**:**", rnd: !!r, ssid, rssi: Math.round(-50 - i * 6 + rnd(-4, 4)), n: Math.floor(simT * (6 - i) / 3) + 1, age: Math.floor(rnd(0, 4)) }));
+  }
+  if (simMode === 3) {
+    d.rate = Math.round(rnd(40, 90));
+    const k = Math.min(SIM_BLE.length, 2 + Math.floor(simT / 1.2));
+    d.devs = SIM_BLE.slice(0, k).map(([kind, name, r, trk], i) => ({ mac: (hash(kind + i) >>> 0).toString(16).toUpperCase().padStart(8, "0").match(/../g).join(":") + ":**:**",
+      rnd: i !== 4, rssi: Math.round(r + rnd(-4, 4)), name, kind, trk: !!trk, n: Math.floor(simT * 4) + i, age: 0 }));
+  }
+  if (simMode === 4) {
+    for (let c = 0; c < 126; c++) {
+      let p = 0.02;
+      for (const [w, amp] of [[1, .9], [6, .7], [11, .55]]) { const cc = 5 * w + 7; if (Math.abs(c - cc) <= 10) p += amp * (1 - Math.abs(c - cc) / 12); }
+      if (Math.random() < .03) p += .6;               // saltos bluetooth
+      if (c > 40 && c < 60 && Math.sin(simT / 3) > .6) p += .5;   // "microondas"
+      const hit = Math.random() < p ? 1000 : 0;
+      simLvl24[c] = (simLvl24[c] * 7 + hit) / 8; simPeak24[c] = Math.max(simLvl24[c], simPeak24[c] - 2);
+    }
+    d.lvl = simLvl24.map(v => Math.round(v / 10)); d.peak = simPeak24.map(v => Math.round(v / 10)); d.sweeps = Math.floor(simT * 30);
+  }
+  if (simMode === 5) {
+    const [f0, f1] = simSpan, burst = (simT % 6) < 1.2;
+    d.f0 = f0; d.f1 = f1;
+    d.cur = Array.from({ length: 100 }, (_, i) => {
+      const f = f0 + (f1 - f0) * i / 99; let v = -104 + rnd(-3, 3);
+      if (burst) v = Math.max(v, -38 - Math.abs(f - 433.92) * 160);
+      if (Math.abs(f - 434.40) < 0.06 && Math.random() < .2) v = Math.max(v, -72);
+      return Math.round(v);
+    });
+    d.cur.forEach((v, i) => simPeak433[i] = Math.max(v, simPeak433[i] - .25));
+    d.peak = simPeak433.map(Math.round);
+    const pi = d.cur.indexOf(Math.max(...d.cur)); d.peakF = f0 + (f1 - f0) * pi / 99; d.peakDb = d.cur[pi]; d.sweeps = Math.floor(simT * 9);
+  }
+  if (simMode === 6) {
+    const phase = simT % 5, press = phase < 0.26;
+    d.freq = simFreq; d.rssi = press ? Math.round(rnd(-45, -38)) : Math.round(rnd(-104, -98)); d.noise = 0;
+    if (press) {
+      const fixed = Math.floor(simT / 10) % 2 === 0;
+      const hex = fixed ? "A5C3B1" : Math.floor(rnd(0, 0xFFFFFFF)).toString(16).toUpperCase().padStart(7, "0") + "E";
+      simFrames += 4;
+      simPress.unshift({ ms: simT, bits: fixed ? 24 : 32, hex, T: fixed ? 350 : 400, enc: "PWM", rep: 4, rssi: d.rssi });
+      simPress = simPress.slice(0, 10);
+    }
+    d.frames = simFrames;
+    d.hist = simPress.map(p => ({ ...p, age: Math.floor(simT - p.ms) }));
+    if (simPress.length >= 2 && simPress[0].bits === simPress[1].bits) d.verdict = simPress[0].hex === simPress[1].hex ? 1 : 2; else d.verdict = 0;
+    if (simPress.length) {
+      const p = simPress[0], bits = BigInt("0x" + p.hex).toString(2).padStart(p.bits, "0").slice(-p.bits);
+      d.wave = [...bits].flatMap(b => b === "1" ? [3 * p.T, -p.T] : [p.T, -3 * p.T]).concat([p.T, -31 * p.T]).slice(0, 200);
+    } else d.wave = [];
+  }
+  onTelemetry(m);
+}
+
+// ======================================================================== matrix rain + arranque
+(function matrix() {
+  const cv = $("matrix"), x = cv.getContext("2d"), chars = "01ABCDEF<>/\\|=+*#ｱｲｳｴｵｶｷｸｹｺ433MHz2.4GHz";
+  let cols, drops;
+  const rs = () => { cv.width = innerWidth; cv.height = innerHeight; cols = Math.floor(cv.width / 16); drops = Array.from({ length: cols }, () => Math.random() * -50); };
+  rs(); addEventListener("resize", rs);
+  setInterval(() => {
+    x.fillStyle = "rgba(2,7,5,.12)"; x.fillRect(0, 0, cv.width, cv.height);
+    x.fillStyle = "#00ff9c"; x.font = "14px monospace";
+    drops.forEach((y, i) => { x.fillText(chars[Math.floor(Math.random() * chars.length)], i * 16, y * 16); drops[i] = y * 16 > cv.height && Math.random() > .975 ? 0 : y + 1; });
+  }, 60);
+})();
+(function boot() {
+  const lines = ["RF//LAB v1.0 — consola de análisis de radio (SOLO RECEPCIÓN)", "", "[ok] cargando módulos: wifi_recon probe_sniff ble_radar",
+    "[ok] cargando módulos: spectrum_2g4 spectrum_433 ook_decoder", "[ok] transmisión deshabilitada por diseño", "", "> esperando enlace USB_"];
+  let i = 0, j = 0, out = "";
+  const t = setInterval(() => {
+    if (i >= lines.length) { clearInterval(t); return; }
+    if (j < lines[i].length) out += lines[i][j++]; else { out += "\n"; i++; j = 0; }
+    $("boot").textContent = out;
+  }, 14);
+})();
+selectView(0, false);
+{ // ?sim=1&m=3 -> arranca en simulacion en el modulo indicado (ensayos)
+  const q = new URLSearchParams(location.search);
+  if (q.get("sim")) { startSim(); selectView(+(q.get("m") || 0)); }
+}
+log("[*] RF//LAB listo. Conecta el dispositivo por USB o usa el modo simulación.", "t-g");
+setInterval(() => { if (uiMode === 1) drawRadar($("cvRadarW"), radarItems.w, "w"); else if (uiMode === 3) drawRadar($("cvRadarB"), radarItems.b, "b"); }, 40);
+</script>
+</body>
+</html>
